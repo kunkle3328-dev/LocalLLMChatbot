@@ -12,13 +12,13 @@ interface MemoryPanelProps {
 
 export const MemoryPanel: React.FC<MemoryPanelProps> = ({ memories, onPin, onDelete, onClose }) => {
   return (
-    <div className="flex flex-col h-full bg-[#0d0d14] p-6">
-      <div className="flex items-center justify-between mb-8">
+    <div className="flex flex-col h-full bg-[#0d0d14] p-4 sm:p-6">
+      <div className="flex items-center justify-between mb-6 sm:mb-8">
         <div className="flex flex-col">
-          <h2 className="text-sm font-black text-white uppercase tracking-tight italic">Cognitive Memory Vault</h2>
-          <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest mt-1">Learned Identity Data</span>
+          <h2 className="text-xs sm:text-sm font-black text-white uppercase tracking-tight italic">Cognitive Memory Vault</h2>
+          <span className="text-[7px] sm:text-[8px] font-black text-slate-500 uppercase tracking-widest mt-1">Learned Identity Data</span>
         </div>
-        <button onClick={onClose} className="text-slate-500 hover:text-white text-xl font-bold">×</button>
+        <button onClick={onClose} className="text-slate-500 hover:text-white text-lg sm:text-xl font-bold">×</button>
       </div>
 
       <div className="flex-1 overflow-y-auto no-scrollbar space-y-4">
@@ -61,9 +61,9 @@ export const MemoryPanel: React.FC<MemoryPanelProps> = ({ memories, onPin, onDel
         )}
       </div>
 
-      <div className="mt-auto pt-6 border-t border-white/5">
-        <div className="p-3 bg-indigo-600/5 rounded-xl border border-indigo-500/10">
-          <p className="text-[10px] font-bold text-slate-400 italic leading-relaxed">
+      <div className="mt-auto pt-4 sm:pt-6 border-t border-white/5">
+        <div className="p-2 sm:p-3 bg-indigo-600/5 rounded-xl border border-indigo-500/10">
+          <p className="text-[9px] sm:text-[10px] font-bold text-slate-400 italic leading-relaxed">
             NeuralPulse memories are stored locally in your SQLite vault. No data leaves this device.
           </p>
         </div>

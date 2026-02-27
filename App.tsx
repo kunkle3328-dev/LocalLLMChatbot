@@ -35,6 +35,8 @@ const App: React.FC = () => {
   const [memories, setMemories] = useState<MemoryEntry[]>([]);
 
   const scrollRef = useRef<HTMLDivElement>(null);
+  const sessionIdCounter = useRef(0);
+  const messageIdCounter = useRef(0);
   const currentSession = sessions.find(s => s.id === currentSessionId);
 
   useEffect(() => {
@@ -82,7 +84,7 @@ const App: React.FC = () => {
 
   const createNewSession = () => {
     const s: ChatSession = {
-      id: Date.now().toString(),
+      id: `session-${Date.now()}-${sessionIdCounter.current++}`,
       title: 'Nexus Node Alpha',
       messages: [],
       createdAt: Date.now(),
@@ -99,7 +101,7 @@ const App: React.FC = () => {
 
     const taskType = localInference.classifyTask(input);
     const userMsg: Message = { 
-      id: Date.now().toString(), 
+      id: `msg-${Date.now()}-${messageIdCounter.current++}`,
       role: 'user', 
       content: input, 
       timestamp: Date.now(),
@@ -115,7 +117,7 @@ const App: React.FC = () => {
     setIsStreaming(true);
     setActiveSteps([]);
 
-    const assistantId = (Date.now() + 1).toString();
+    const assistantId = `msg-${Date.now()}-${messageIdCounter.current++}`;
     const assistantMsg: Message = { id: assistantId, role: 'assistant', content: '', timestamp: Date.now(), reasoningSteps: [] };
     setSessions(prev => prev.map(s => s.id === currentSessionId ? { ...s, messages: [...s.messages, assistantMsg] } : s));
 
@@ -210,7 +212,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="flex h-full w-full max-w-md mx-auto bg-[#07070a] text-slate-100 overflow-hidden relative font-sans transition-all duration-700 ease-out opacity-0 animate-[nexus-fade-in_1s_forwards]">
+    <div className="flex h-full w-full max-w-3xl mx-auto bg-[#07070a] text-slate-100 overflow-hidden relative font-sans transition-all duration-700 ease-out opacity-0 animate-[nexus-fade-in_1s_forwards]">
       <style>{`
         @keyframes nexus-fade-in {
           from { opacity: 0; transform: translateY(20px); }
@@ -227,84 +229,84 @@ const App: React.FC = () => {
       {/* Sidebar Navigation */}
       {(showSidebar || showMemory) && <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40" onClick={() => { setShowSidebar(false); setShowMemory(false); }} />}
       
-      <aside className={`fixed left-0 top-0 h-full w-72 bg-[#0d0d14]/95 backdrop-blur-2xl z-50 transform transition-transform duration-700 cubic-bezier(0.19, 1, 0.22, 1) ${showSidebar ? 'translate-x-0' : '-translate-x-full'} border-r border-white/10 shadow-[30px_0_60px_rgba(0,0,0,0.5)]`}>
-        <div className="p-6 flex flex-col h-full">
-          <div className="flex items-center gap-3 mb-10">
-            <AnimatedLogo className="w-10 h-10" />
+      <aside className={`fixed left-0 top-0 h-full w-64 sm:w-72 bg-[#0d0d14]/95 backdrop-blur-2xl z-50 transform transition-transform duration-700 cubic-bezier(0.19, 1, 0.22, 1) ${showSidebar ? 'translate-x-0' : '-translate-x-full'} border-r border-white/10 shadow-[30px_0_60px_rgba(0,0,0,0.5)]`}>
+        <div className="p-4 sm:p-6 flex flex-col h-full">
+          <div className="flex items-center gap-2 sm:gap-3 mb-8 sm:mb-10">
+            <AnimatedLogo className="w-8 h-8 sm:w-10 sm:h-10" />
             <div className="flex flex-col">
-               <h2 className="text-md font-black tracking-tighter italic text-white uppercase leading-none">{APP_NAME}</h2>
-               <span className="text-[8px] font-black text-slate-500 tracking-[0.2em] mt-1.5 uppercase">Neural Node v4.5</span>
+               <h2 className="text-sm sm:text-md font-black tracking-tighter italic text-white uppercase leading-none">{APP_NAME}</h2>
+               <span className="text-[7px] sm:text-[8px] font-black text-slate-500 tracking-[0.2em] mt-1 sm:mt-1.5 uppercase">Neural Node v4.5</span>
             </div>
           </div>
           
-          <button onClick={createNewSession} className="flex items-center justify-center gap-4 w-full p-4 mb-8 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white rounded-2xl font-black shadow-2xl shadow-indigo-600/30 active:scale-[0.96] transition-all text-xs uppercase tracking-widest">
-            <PlusIcon className="w-4 h-4" /> Initialize Link
+          <button onClick={createNewSession} className="flex items-center justify-center gap-3 sm:gap-4 w-full p-3 sm:p-4 mb-6 sm:mb-8 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white rounded-xl sm:rounded-2xl font-black shadow-2xl shadow-indigo-600/30 active:scale-[0.96] transition-all text-[10px] sm:text-xs uppercase tracking-widest">
+            <PlusIcon className="w-3 h-3 sm:w-4 sm:h-4" /> Initialize Link
           </button>
 
-          <div className="flex-1 overflow-y-auto no-scrollbar space-y-4">
-            <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] px-1 mb-2">Workspace Hub</h3>
+          <div className="flex-1 overflow-y-auto no-scrollbar space-y-3 sm:space-y-4">
+            <h3 className="text-[9px] sm:text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] px-1 mb-2">Workspace Hub</h3>
             {sessions.map(s => (
-              <div key={s.id} onClick={() => { setCurrentSessionId(s.id); setShowSidebar(false); }} className={`group flex items-center justify-between p-4 rounded-2xl cursor-pointer transition-all border ${currentSessionId === s.id ? 'bg-indigo-600/20 text-indigo-300 border-indigo-500/40 shadow-lg' : 'hover:bg-white/5 border-transparent'}`}>
-                <span className="truncate flex-1 text-[12px] font-bold tracking-tight">{s.title || 'Nexus Stream'}</span>
-                <TrashIcon className="w-4 h-4 opacity-0 group-hover:opacity-100 text-slate-600 hover:text-red-500 transition-all" onClick={(e) => { e.stopPropagation(); setSessions(prev => prev.filter(x => x.id !== s.id)); }} />
+              <div key={s.id} onClick={() => { setCurrentSessionId(s.id); setShowSidebar(false); }} className={`group flex items-center justify-between p-3 sm:p-4 rounded-xl sm:rounded-2xl cursor-pointer transition-all border ${currentSessionId === s.id ? 'bg-indigo-600/20 text-indigo-300 border-indigo-500/40 shadow-lg' : 'hover:bg-white/5 border-transparent'}`}>
+                <span className="truncate flex-1 text-[11px] sm:text-[12px] font-bold tracking-tight">{s.title || 'Nexus Stream'}</span>
+                <TrashIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 opacity-0 group-hover:opacity-100 text-slate-600 hover:text-red-500 transition-all" onClick={(e) => { e.stopPropagation(); setSessions(prev => prev.filter(x => x.id !== s.id)); }} />
               </div>
             ))}
           </div>
 
-          <div className="mt-auto space-y-3 pt-6 border-t border-white/5">
-            <button onClick={() => { setShowMemory(true); setShowSidebar(false); }} className="flex items-center gap-4 p-4 w-full rounded-2xl hover:bg-white/5 transition-all group">
-              <BotIcon className="w-5 h-5 text-slate-500 group-hover:text-cyan-400 transition-colors" /> <span className="text-[12px] font-black uppercase tracking-widest text-slate-400 group-hover:text-white transition-colors">Cognitive Vault</span>
+          <div className="mt-auto space-y-2 sm:space-y-3 pt-4 sm:pt-6 border-t border-white/5">
+            <button onClick={() => { setShowMemory(true); setShowSidebar(false); }} className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 w-full rounded-xl sm:rounded-2xl hover:bg-white/5 transition-all group">
+              <BotIcon className="w-4 h-4 sm:w-5 sm:h-5 text-slate-500 group-hover:text-cyan-400 transition-colors" /> <span className="text-[10px] sm:text-[12px] font-black uppercase tracking-widest text-slate-400 group-hover:text-white transition-colors">Cognitive Vault</span>
             </button>
-            <button onClick={() => { setShowSettings(true); setShowSidebar(false); }} className="flex items-center gap-4 p-4 w-full rounded-2xl hover:bg-white/5 transition-all group">
-              <SettingsIcon className="w-5 h-5 text-slate-500 group-hover:text-indigo-400 transition-colors" /> <span className="text-[12px] font-black uppercase tracking-widest text-slate-400 group-hover:text-white transition-colors">Core Matrix</span>
+            <button onClick={() => { setShowSettings(true); setShowSidebar(false); }} className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 w-full rounded-xl sm:rounded-2xl hover:bg-white/5 transition-all group">
+              <SettingsIcon className="w-4 h-4 sm:w-5 sm:h-5 text-slate-500 group-hover:text-indigo-400 transition-colors" /> <span className="text-[10px] sm:text-[12px] font-black uppercase tracking-widest text-slate-400 group-hover:text-white transition-colors">Core Matrix</span>
             </button>
           </div>
         </div>
       </aside>
 
       {/* Memory Panel overlay */}
-      <aside className={`fixed left-0 top-0 h-full w-80 bg-[#0d0d14]/98 backdrop-blur-3xl z-[60] transform transition-transform duration-700 cubic-bezier(0.19, 1, 0.22, 1) ${showMemory ? 'translate-x-0' : '-translate-x-full'} border-r border-white/10 shadow-[30px_0_60px_rgba(0,0,0,0.5)]`}>
+      <aside className={`fixed left-0 top-0 h-full w-72 sm:w-80 bg-[#0d0d14]/98 backdrop-blur-3xl z-[60] transform transition-transform duration-700 cubic-bezier(0.19, 1, 0.22, 1) ${showMemory ? 'translate-x-0' : '-translate-x-full'} border-r border-white/10 shadow-[30px_0_60px_rgba(0,0,0,0.5)]`}>
         <MemoryPanel memories={memories} onDelete={deleteMemory} onPin={pinMemory} onClose={() => setShowMemory(false)} />
       </aside>
 
       {/* Main Experience */}
       <main className="flex flex-col flex-1 h-full w-full relative z-10 shadow-inner">
-        <header className="px-5 py-4 border-b border-white/10 bg-[#07070a]/80 backdrop-blur-2xl sticky top-0 z-30 flex items-center justify-between shadow-2xl">
-          <div className="flex items-center gap-4">
-            <button onClick={() => setShowSidebar(true)} className="p-2 -ml-2 hover:bg-white/10 rounded-2xl transition-all active:scale-90"><MenuIcon className="w-6 h-6 text-slate-300" /></button>
+        <header className="px-3 sm:px-5 py-3 sm:py-4 border-b border-white/10 bg-[#07070a]/80 backdrop-blur-2xl sticky top-0 z-30 flex items-center justify-between shadow-2xl">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <button onClick={() => setShowSidebar(true)} className="p-2 -ml-2 hover:bg-white/10 rounded-2xl transition-all active:scale-90"><MenuIcon className="w-5 h-5 sm:w-6 sm:h-6 text-slate-300" /></button>
             <div className="flex flex-col">
-              <h1 className="text-[12px] font-black tracking-widest text-white uppercase truncate max-w-[150px] italic">{currentSession?.title || 'NEXUS NODE'}</h1>
+              <h1 className="text-[11px] sm:text-[12px] font-black tracking-widest text-white uppercase truncate max-w-[100px] sm:max-w-[150px] italic">{currentSession?.title || 'NEXUS NODE'}</h1>
               <div className="flex items-center gap-1.5 mt-1">
                  <span className={`w-1.5 h-1.5 rounded-full ${deviceStats.temp > 50 ? 'bg-amber-500' : 'bg-cyan-500 animate-pulse'} shadow-[0_0_8px_rgba(34,211,238,0.6)]`} />
-                 <span className="text-[9px] font-black text-slate-500 tracking-widest uppercase">{config.profile} Matrix Active</span>
+                 <span className="text-[8px] sm:text-[9px] font-black text-slate-500 tracking-widest uppercase truncate max-w-[80px] sm:max-w-none">{config.profile} Matrix</span>
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-             <div className="text-right flex flex-col items-end mr-2">
-                <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Neural Link</span>
-                <span className="text-[11px] font-black text-indigo-400 tabular-nums">{isStreaming ? currentTps : '0.0'} TPS</span>
+          <div className="flex items-center gap-1 sm:gap-3">
+             <div className="text-right flex flex-col items-end mr-1 sm:mr-2">
+                <span className="text-[7px] sm:text-[8px] font-black text-slate-500 uppercase tracking-widest">Neural Link</span>
+                <span className="text-[10px] sm:text-[11px] font-black text-indigo-400 tabular-nums">{isStreaming ? currentTps : '0.0'} TPS</span>
              </div>
-             <button onClick={() => setShowSettings(true)} className="p-2 hover:bg-white/10 rounded-2xl transition-all active:scale-90"><SettingsIcon className="w-5 h-5 text-slate-400" /></button>
+             <button onClick={() => setShowSettings(true)} className="p-2 hover:bg-white/10 rounded-2xl transition-all active:scale-90"><SettingsIcon className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" /></button>
           </div>
         </header>
 
         {/* Chat Feed */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto px-5 py-8 space-y-12 no-scrollbar pb-40 scroll-smooth">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 sm:px-5 py-4 sm:py-8 space-y-6 sm:space-y-12 no-scrollbar pb-32 sm:pb-40 scroll-smooth">
           {currentSession?.messages.length === 0 && (
-            <div className="flex flex-col items-center justify-center h-full text-center space-y-12 py-16 animate-in zoom-in-95 duration-[2000ms] cubic-bezier(0.19, 1, 0.22, 1)">
+            <div className="flex flex-col items-center justify-center h-full text-center space-y-8 sm:space-y-12 py-10 sm:py-16 animate-in zoom-in-95 duration-[2000ms] cubic-bezier(0.19, 1, 0.22, 1)">
               <div className="relative">
-                <AnimatedLogo className="w-28 h-28" />
-                <div className="absolute inset-0 bg-cyan-500/10 blur-[60px] rounded-full animate-pulse" />
+                <AnimatedLogo className="w-20 h-20 sm:w-28 sm:h-28" />
+                <div className="absolute inset-0 bg-cyan-500/10 blur-[40px] sm:blur-[60px] rounded-full animate-pulse" />
               </div>
-              <div className="space-y-4">
-                <h2 className="text-2xl font-black tracking-[0.3em] text-white uppercase italic drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]">{APP_NAME}</h2>
-                <p className="text-[12px] text-slate-400 font-bold uppercase tracking-[0.5em] leading-relaxed max-w-[300px] mx-auto opacity-70">Personal AI Node | local ARM64 Inference | Cinematic UX</p>
+              <div className="space-y-3 sm:space-y-4">
+                <h2 className="text-xl sm:text-2xl font-black tracking-[0.2em] sm:tracking-[0.3em] text-white uppercase italic drop-shadow-[0_0_20px_rgba(255,255,255,0.4)]">{APP_NAME}</h2>
+                <p className="text-[10px] sm:text-[12px] text-slate-400 font-bold uppercase tracking-[0.3em] sm:tracking-[0.5em] leading-relaxed max-w-[250px] sm:max-w-[300px] mx-auto opacity-70">Personal AI Node | local ARM64 Inference | Cinematic UX</p>
               </div>
-              <div className="flex flex-col gap-4 w-full max-w-[260px]">
+              <div className="flex flex-col gap-3 sm:gap-4 w-full max-w-[240px] sm:max-w-[260px]">
                 {['Architect Nexus Node', 'Audit System Identity', 'Generate Logic Stream'].map(h => (
-                  <button key={h} onClick={() => setInput(h)} className="p-4 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-2xl text-[11px] font-black text-slate-400 hover:text-cyan-400 hover:border-cyan-500/30 transition-all text-left flex items-center justify-between active:scale-[0.97] group shadow-xl">
-                    {h} <PlusIcon className="w-4 h-4 text-indigo-500 group-hover:scale-125 transition-transform" />
+                  <button key={h} onClick={() => setInput(h)} className="p-3 sm:p-4 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-xl sm:rounded-2xl text-[10px] sm:text-[11px] font-black text-slate-400 hover:text-cyan-400 hover:border-cyan-500/30 transition-all text-left flex items-center justify-between active:scale-[0.97] group shadow-xl">
+                    {h} <PlusIcon className="w-3 h-3 sm:w-4 sm:h-4 text-indigo-500 group-hover:scale-125 transition-transform" />
                   </button>
                 ))}
               </div>
@@ -332,7 +334,7 @@ const App: React.FC = () => {
                   </div>
                 )}
 
-                <div className={`p-6 rounded-[2.5rem] text-[14px] leading-[1.65] shadow-2xl transition-all duration-700 ${
+                <div className={`p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2.5rem] text-[13px] sm:text-[14px] leading-[1.65] shadow-2xl transition-all duration-700 ${
                   m.role === 'user' 
                     ? 'bg-gradient-to-br from-indigo-600 to-blue-800 text-white rounded-tr-none font-bold' 
                     : 'bg-[#12121c]/90 backdrop-blur-3xl text-slate-100 rounded-tl-none border border-white/10'
@@ -362,22 +364,22 @@ const App: React.FC = () => {
         </div>
 
         {/* Input Interface */}
-        <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-[#07070a] via-[#07070a]/95 to-transparent z-40">
-          <div className="bg-[#1c1c2b]/90 backdrop-blur-3xl p-3.5 rounded-[2.5rem] border border-white/15 shadow-[0_-20px_60px_rgba(0,0,0,0.6)] flex items-end gap-4 focus-within:ring-2 ring-indigo-500/50 transition-all duration-700">
-            <button onClick={toggleListening} className={`p-3.5 rounded-full transition-all duration-500 ${isListening ? 'bg-red-500 text-white shadow-[0_0_20px_rgba(239,68,68,0.5)]' : 'hover:bg-white/10 text-slate-400'}`}>
-              <MicIcon className="w-6 h-6" active={isListening} />
+        <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-6 bg-gradient-to-t from-[#07070a] via-[#07070a]/95 to-transparent z-40">
+          <div className="bg-[#1c1c2b]/90 backdrop-blur-3xl p-2 sm:p-3.5 rounded-[1.5rem] sm:rounded-[2.5rem] border border-white/15 shadow-[0_-20px_60px_rgba(0,0,0,0.6)] flex items-end gap-2 sm:gap-4 focus-within:ring-2 ring-indigo-500/50 transition-all duration-700">
+            <button onClick={toggleListening} className={`p-2.5 sm:p-3.5 rounded-full transition-all duration-500 ${isListening ? 'bg-red-500 text-white shadow-[0_0_20px_rgba(239,68,68,0.5)]' : 'hover:bg-white/10 text-slate-400'}`}>
+              <MicIcon className="w-5 h-5 sm:w-6 sm:h-6" active={isListening} />
             </button>
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder={isStreaming ? "Neural processing..." : "Neural prompt link..."}
               disabled={isStreaming}
-              className="flex-1 bg-transparent border-none focus:ring-0 text-[14px] p-2.5 no-scrollbar resize-none max-h-36 min-h-[44px] placeholder:text-slate-700 font-bold text-white transition-all"
+              className="flex-1 bg-transparent border-none focus:ring-0 text-[13px] sm:text-[14px] p-2 sm:p-2.5 no-scrollbar resize-none max-h-32 sm:max-h-36 min-h-[40px] sm:min-h-[44px] placeholder:text-slate-700 font-bold text-white transition-all"
               rows={1}
               onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
             />
-            <button onClick={handleSend} disabled={!input.trim() || isStreaming} className={`p-4 rounded-full transition-all duration-500 flex items-center justify-center ${!input.trim() || isStreaming ? 'bg-white/5 text-slate-800' : 'bg-gradient-to-br from-indigo-500 via-blue-600 to-indigo-700 text-white shadow-2xl shadow-indigo-600/40 hover:scale-105 active:scale-90'}`}>
-              <SendIcon className="w-6 h-6" />
+            <button onClick={handleSend} disabled={!input.trim() || isStreaming} className={`p-3 sm:p-4 rounded-full transition-all duration-500 flex items-center justify-center ${!input.trim() || isStreaming ? 'bg-white/5 text-slate-800' : 'bg-gradient-to-br from-indigo-500 via-blue-600 to-indigo-700 text-white shadow-2xl shadow-indigo-600/40 hover:scale-105 active:scale-90'}`}>
+              <SendIcon className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
           </div>
         </div>
@@ -387,7 +389,7 @@ const App: React.FC = () => {
       {showSettings && (
         <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
           <div className="absolute inset-0 bg-black/98 backdrop-blur-3xl" onClick={() => setShowSettings(false)} />
-          <div className="relative bg-[#0d0d14] w-full max-w-sm rounded-t-[3.5rem] sm:rounded-[3.5rem] p-10 space-y-10 border-t border-white/15 animate-in slide-in-from-bottom-96 duration-1000 cubic-bezier(0.19, 1, 0.22, 1) shadow-2xl">
+          <div className="relative bg-[#0d0d14] w-full max-w-md rounded-t-[2.5rem] sm:rounded-[3.5rem] p-6 sm:p-10 space-y-8 sm:space-y-10 border-t border-white/15 animate-in slide-in-from-bottom-96 duration-1000 cubic-bezier(0.19, 1, 0.22, 1) shadow-2xl">
             <div className="flex items-center justify-between">
               <div className="flex flex-col">
                 <h2 className="text-xl font-black tracking-tighter text-white uppercase italic tracking-widest">Core Matrix</h2>
@@ -396,42 +398,42 @@ const App: React.FC = () => {
               <button onClick={() => setShowSettings(false)} className="w-10 h-10 flex items-center justify-center bg-white/10 rounded-full text-slate-300 hover:text-white transition-all active:scale-90">×</button>
             </div>
             
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.4em] px-1">Active Neural Model</label>
-                <div className="space-y-4">
+            <div className="space-y-6 sm:space-y-8">
+              <div className="space-y-3 sm:space-y-4">
+                <label className="text-[10px] sm:text-[11px] font-black text-slate-500 uppercase tracking-[0.4em] px-1">Active Neural Model</label>
+                <div className="space-y-3 sm:space-y-4">
                   {AVAILABLE_MODELS.map(m => (
-                    <div key={m.id} onClick={() => setConfig({ ...config, activeModelId: m.id })} className={`p-5 rounded-[2rem] border-2 transition-all duration-500 cursor-pointer ${config.activeModelId === m.id ? 'border-cyan-500 bg-cyan-500/15 shadow-[0_0_30px_rgba(34,211,238,0.2)]' : 'border-white/5 bg-white/[0.04] hover:bg-white/[0.08]'}`}>
+                    <div key={m.id} onClick={() => setConfig({ ...config, activeModelId: m.id })} className={`p-4 sm:p-5 rounded-[1.5rem] sm:rounded-[2rem] border-2 transition-all duration-500 cursor-pointer ${config.activeModelId === m.id ? 'border-cyan-500 bg-cyan-500/15 shadow-[0_0_30px_rgba(34,211,238,0.2)]' : 'border-white/5 bg-white/[0.04] hover:bg-white/[0.08]'}`}>
                       <div className="flex justify-between items-center mb-2">
-                        <span className={`text-[14px] font-black ${config.activeModelId === m.id ? 'text-cyan-400' : 'text-white'}`}>{m.name}</span>
-                        <span className="text-[9px] font-black bg-white/15 text-slate-400 px-3 py-1.5 rounded-full uppercase border border-white/10">{m.version}</span>
+                        <span className={`text-[13px] sm:text-[14px] font-black ${config.activeModelId === m.id ? 'text-cyan-400' : 'text-white'}`}>{m.name}</span>
+                        <span className="text-[8px] sm:text-[9px] font-black bg-white/15 text-slate-400 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full uppercase border border-white/10">{m.version}</span>
                       </div>
-                      <p className="text-[11px] text-slate-500 font-bold leading-relaxed">{m.description}</p>
+                      <p className="text-[10px] sm:text-[11px] text-slate-500 font-bold leading-relaxed">{m.description}</p>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-6">
-                 <div className="space-y-3">
-                   <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em]">Power Node</label>
-                   <div className="grid grid-cols-3 bg-white/5 p-2 rounded-[1.5rem] border border-white/10">
+              <div className="grid grid-cols-2 gap-4 sm:gap-6">
+                 <div className="space-y-2 sm:space-y-3">
+                   <label className="text-[9px] sm:text-[11px] font-black text-slate-500 uppercase tracking-[0.3em]">Power Node</label>
+                   <div className="grid grid-cols-3 bg-white/5 p-1.5 sm:p-2 rounded-[1.25rem] sm:rounded-[1.5rem] border border-white/10">
                      {(['Eco', 'Balanced', 'Performance'] as PerformanceMode[]).map(p => (
-                       <button key={p} onClick={() => setConfig({...config, profile: p})} className={`py-3.5 text-[10px] font-black rounded-2xl transition-all ${config.profile === p ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-600/30' : 'text-slate-500 hover:text-slate-300'}`}>{p[0]}</button>
+                       <button key={p} onClick={() => setConfig({...config, profile: p})} className={`py-2 sm:py-3.5 text-[9px] sm:text-[10px] font-black rounded-xl sm:rounded-2xl transition-all ${config.profile === p ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-600/30' : 'text-slate-500 hover:text-slate-300'}`}>{p[0]}</button>
                      ))}
                    </div>
                  </div>
-                 <div className="space-y-3">
-                   <label className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em]">Cognitive Sync</label>
-                   <div onClick={() => setConfig({ ...config, useCognitiveMemory: !config.useCognitiveMemory })} className={`w-full py-4 rounded-[1.5rem] text-[11px] font-black text-center cursor-pointer transition-all border-2 flex items-center justify-center gap-4 ${config.useCognitiveMemory ? 'border-cyan-500 bg-cyan-500/15 text-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.15)]' : 'border-white/10 text-slate-700 hover:border-white/30'}`}>
-                     <div className={`w-2.5 h-2.5 rounded-full ${config.useCognitiveMemory ? 'bg-cyan-400 shadow-[0_0_12px_cyan]' : 'bg-slate-800'}`} />
+                 <div className="space-y-2 sm:space-y-3">
+                   <label className="text-[9px] sm:text-[11px] font-black text-slate-500 uppercase tracking-[0.3em]">Cognitive Sync</label>
+                   <div onClick={() => setConfig({ ...config, useCognitiveMemory: !config.useCognitiveMemory })} className={`w-full py-2.5 sm:py-4 rounded-[1.25rem] sm:rounded-[1.5rem] text-[10px] sm:text-[11px] font-black text-center cursor-pointer transition-all border-2 flex items-center justify-center gap-2 sm:gap-4 ${config.useCognitiveMemory ? 'border-cyan-500 bg-cyan-500/15 text-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.15)]' : 'border-white/10 text-slate-700 hover:border-white/30'}`}>
+                     <div className={`w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full ${config.useCognitiveMemory ? 'bg-cyan-400 shadow-[0_0_12px_cyan]' : 'bg-slate-800'}`} />
                      {config.useCognitiveMemory ? 'Linked' : 'Offline'}
                    </div>
                  </div>
               </div>
             </div>
             
-            <button onClick={() => setShowSettings(false)} className="w-full py-6 bg-gradient-to-r from-white via-slate-100 to-slate-300 text-black rounded-[2rem] font-black text-[13px] uppercase tracking-[0.3em] shadow-2xl transition-transform active:scale-95 hover:brightness-110">Commit Neural Node</button>
+            <button onClick={() => setShowSettings(false)} className="w-full py-4 sm:py-6 bg-gradient-to-r from-white via-slate-100 to-slate-300 text-black rounded-[1.5rem] sm:rounded-[2rem] font-black text-[11px] sm:text-[13px] uppercase tracking-[0.3em] shadow-2xl transition-transform active:scale-95 hover:brightness-110">Commit Neural Node</button>
           </div>
         </div>
       )}
