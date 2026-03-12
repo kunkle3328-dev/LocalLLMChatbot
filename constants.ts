@@ -32,7 +32,17 @@ export const AVAILABLE_MODELS: LocalModel[] = [
     isDownloaded: true,
     role: 'Reasoning',
     description: 'Planning model. Low RAM footprint for intent detection.'
-  }
+  },
+  { id: 'llama-3-8b-instruct', name: 'Llama 3 8B Instruct', version: 'Q4_K_M', size: '4.9 GB', vramRequired: '5.5 GB', isDownloaded: false, role: 'Generalist', description: 'Balanced general-purpose assistant.' },
+  { id: 'mistral-7b-v0.3', name: 'Mistral 7B v0.3', version: 'Q4_K_M', size: '4.4 GB', vramRequired: '5.0 GB', isDownloaded: false, role: 'Generalist', description: 'Versatile and efficient model.' },
+  { id: 'gemma-2-9b-it', name: 'Gemma 2 9B IT', version: 'Q4_K_M', size: '5.5 GB', vramRequired: '6.2 GB', isDownloaded: false, role: 'Generalist', description: 'Google-optimized instruction model.' },
+  { id: 'deepseek-coder-6.7b', name: 'DeepSeek Coder 6.7B', version: 'Q4_K_M', size: '4.0 GB', vramRequired: '4.5 GB', isDownloaded: false, role: 'Coding', description: 'Specialized coding model.' },
+  { id: 'phi-3-medium-128k', name: 'Phi-3 Medium 128k', version: 'Q4_K_M', size: '7.5 GB', vramRequired: '8.5 GB', isDownloaded: false, role: 'Reasoning', description: 'High-context reasoning model.' },
+  { id: 'solar-10.7b', name: 'Solar 10.7B', version: 'Q4_K_M', size: '6.5 GB', vramRequired: '7.5 GB', isDownloaded: false, role: 'Generalist', description: 'High-performance medium model.' },
+  { id: 'openchat-3.5', name: 'OpenChat 3.5', version: 'Q4_K_M', size: '4.5 GB', vramRequired: '5.0 GB', isDownloaded: false, role: 'Generalist', description: 'Fine-tuned for chat interaction.' },
+  { id: 'starling-lm-7b', name: 'Starling LM 7B', version: 'Q4_K_M', size: '4.5 GB', vramRequired: '5.0 GB', isDownloaded: false, role: 'Generalist', description: 'High-quality chat model.' },
+  { id: 'zephyr-7b-beta', name: 'Zephyr 7B Beta', version: 'Q4_K_M', size: '4.5 GB', vramRequired: '5.0 GB', isDownloaded: false, role: 'Generalist', description: 'Refined instruction-tuned model.' },
+  { id: 'nous-hermes-2-pro', name: 'Nous Hermes 2 Pro', version: 'Q4_K_M', size: '4.5 GB', vramRequired: '5.0 GB', isDownloaded: false, role: 'Generalist', description: 'Advanced instruction-tuned model.' }
 ];
 
 export const TASK_SPECIFIC_PROMPTS: Record<TaskType, string> = {

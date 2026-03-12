@@ -67,7 +67,7 @@ export interface LocalModel {
   vramRequired: string;
   isDownloaded: boolean;
   description: string;
-  role: 'Generalist' | 'Reasoning' | 'Embedding';
+  role: 'Generalist' | 'Reasoning' | 'Embedding' | 'Coding';
 }
 
 export interface ChatSession {

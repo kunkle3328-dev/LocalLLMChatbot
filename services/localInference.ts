@@ -122,8 +122,10 @@ export const localInference = {
       steps[2].status = 'active';
       onStepUpdate([...steps]);
 
+      const modelName = config.activeModelId === 'qwen-2.5-coder-7b' ? 'gemini-3-pro-preview' : 'gemini-3-flash-preview';
+
       const systemInstruction = `
-        SYSTEM: NeuralPulse V3 (Active Task: ${taskType}).
+        SYSTEM: NeuralPulse V3 (Active Engine: ${config.activeModelId}, Task: ${taskType}).
         MODE: ${TASK_SPECIFIC_PROMPTS[taskType]}
         PERSONAL_CONTEXT: ${personalContext || "Generic profile."}
         TOOLS: You can use tools by prefixing your response with 'tool:[name]:[input]'. Available: write_file, read_file.
@@ -138,7 +140,7 @@ export const localInference = {
       let tokenCount = 0;
 
       const responseStream = await ai.models.generateContentStream({
-        model: 'gemini-3-pro-preview',
+        model: modelName,
         contents: contents,
         config: {
           systemInstruction,
