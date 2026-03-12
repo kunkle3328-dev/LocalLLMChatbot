@@ -59,7 +59,12 @@ export const DEFAULT_CONFIG: AppConfig = {
   profile: 'Balanced',
   useCognitiveMemory: true,
   useGpu: true,
-  voiceEnabled: false
+  voiceEnabled: false,
+  voiceConfig: {
+    voiceName: 'Kore',
+    pitch: 1.0,
+    speed: 1.0
+  }
 };
 
 export const STORAGE_KEYS = {

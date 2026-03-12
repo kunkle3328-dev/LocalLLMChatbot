@@ -1,13 +1,14 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { storageService } from './services/storageService';
+import { localInference } from './services/localInference';
+import { initLLM } from './native/LocalLLM';
 import { 
   ChatSession, Message, LocalModel, 
   AppConfig, DeviceStats, ReasoningStep, PerformanceMode, TaskType, MemoryEntry
 } from './types';
 import { AVAILABLE_MODELS, DEFAULT_CONFIG, STORAGE_KEYS, APP_NAME } from './constants';
-import { storageService } from './services/storageService';
-import { localInference } from './services/localInference';
-import { initLLM } from './native/LocalLLM';
+import { VoiceService } from './services/voiceService';
 import { 
   SendIcon, MenuIcon, PlusIcon, SettingsIcon, 
   TrashIcon, BotIcon, MicIcon, SpeakerIcon
@@ -15,6 +16,7 @@ import {
 import { MemoryPanel } from './app/components/MemoryPanel';
 import { SplashScreen } from './components/SplashScreen';
 import { AnimatedLogo } from './components/AnimatedLogo';
+import { VoiceName } from './types';
 
 const App: React.FC = () => {
   const [booting, setBooting] = useState(true);
@@ -33,6 +35,11 @@ const App: React.FC = () => {
   const [currentTps, setCurrentTps] = useState(0);
   const [isListening, setIsListening] = useState(false);
   const [memories, setMemories] = useState<MemoryEntry[]>([]);
+  const voiceService = useRef<VoiceService | null>(null);
+
+  useEffect(() => {
+    voiceService.current = new VoiceService(process.env.GEMINI_API_KEY!);
+  }, []);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const sessionIdCounter = useRef(0);
@@ -164,14 +171,29 @@ const App: React.FC = () => {
     localStorage.setItem(STORAGE_KEYS.COGNITIVE_MEMORY, JSON.stringify(updated));
   };
 
-  const toggleListening = () => {
-    if (isListening) setIsListening(false);
-    else {
-      setIsListening(true);
-      setTimeout(() => {
-        if (isListening) setInput("Analyze my Nexus workspace.");
+  const toggleListening = async () => {
+    if (isListening) {
+      await voiceService.current?.close();
+      setIsListening(false);
+    } else {
+      try {
+        // Request microphone permission explicitly first to ensure it's handled
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+        
+        setIsListening(true);
+        await voiceService.current?.connect(config.voiceConfig, (text, isUser) => {
+          if (isUser) {
+            setInput(text);
+          } else {
+            // Handle model transcription if needed
+            console.log("Model said:", text);
+          }
+        });
+      } catch (err) {
+        console.error("Failed to start voice mode:", err);
         setIsListening(false);
-      }, 1500);
+        // Optionally show a toast or alert here
+      }
     }
   };
 
@@ -412,6 +434,23 @@ const App: React.FC = () => {
             </div>
             
             <div className="space-y-6 sm:space-y-8 overflow-y-auto no-scrollbar pr-2 flex-1">
+              <div className="space-y-3 sm:space-y-4">
+                <label className="text-[10px] sm:text-[11px] font-black text-slate-500 uppercase tracking-[0.4em] px-1">Voice Configuration</label>
+                <div className="grid grid-cols-1 gap-4 bg-white/5 p-4 rounded-2xl border border-white/10">
+                  <select 
+                    value={config.voiceConfig.voiceName}
+                    onChange={(e) => setConfig({...config, voiceConfig: {...config.voiceConfig, voiceName: e.target.value as VoiceName}})}
+                    className="w-full bg-[#050507] border border-white/10 rounded-xl p-3 text-white text-xs font-bold uppercase tracking-widest"
+                  >
+                    {['Puck', 'Charon', 'Kore', 'Fenrir', 'Zephyr'].map(v => <option key={v} value={v}>{v}</option>)}
+                  </select>
+                  <div className="flex items-center gap-4">
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em]">Speed</span>
+                    <input type="range" min="0.5" max="2" step="0.1" value={config.voiceConfig.speed} onChange={(e) => setConfig({...config, voiceConfig: {...config.voiceConfig, speed: parseFloat(e.target.value)}})} className="flex-1 accent-cyan-500" />
+                  </div>
+                </div>
+              </div>
+
               <div className="space-y-3 sm:space-y-4">
                 <label className="text-[10px] sm:text-[11px] font-black text-slate-500 uppercase tracking-[0.4em] px-1">Active Neural Model</label>
                 <div className="space-y-3 sm:space-y-4">

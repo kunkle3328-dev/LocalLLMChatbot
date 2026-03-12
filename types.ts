@@ -2,6 +2,13 @@
 export type Role = 'user' | 'assistant' | 'system';
 export type Quantization = '4-bit' | '6-bit' | '8-bit';
 export type PerformanceMode = 'Eco' | 'Balanced' | 'Performance';
+export type VoiceName = 'Puck' | 'Charon' | 'Kore' | 'Fenrir' | 'Zephyr';
+
+export interface VoiceConfig {
+  voiceName: VoiceName;
+  pitch: number;
+  speed: number;
+}
 
 export type TaskType = 'Code' | 'Reasoning' | 'Chat' | 'Search';
 
@@ -96,4 +103,5 @@ export interface AppConfig {
   useCognitiveMemory: boolean;
   useGpu: boolean;
   voiceEnabled: boolean;
+  voiceConfig: VoiceConfig;
 }
